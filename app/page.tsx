@@ -1,4 +1,3 @@
-"use client";
 import Image from "next/image";
 import NavBar from "@/components/prod/navbar";
 import { Card, CardFooter } from "@/components/ui/card";
@@ -13,8 +12,9 @@ import {
   FileEditIcon,
 } from "@hugeicons/core-free-icons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useRouter } from "next/navigation";
+
 import ImageGrid from "@/components/prod/image-grid";
+import Link from "next/link";
 
 const images = [
   "/images/001.png",
@@ -26,11 +26,6 @@ const images = [
 ];
 
 export default function Home() {
-  const router = useRouter();
-  const handleClick = () => {
-    router.push("/services/customize_film");
-  };
-
   return (
     <div className="flex flex-col flex-1 items-center justify-center dark:bg-black">
       <NavBar />
@@ -211,8 +206,8 @@ export default function Home() {
               满足不同人士的个性拍摄需求，明仪注重客户隐私，成片后底片全送
             </p>
             <p>
-              <Button size="lg" onClick={handleClick}>
-                我要定制
+              <Button size="lg" asChild>
+                <Link href="/services/customize_film">我要定制</Link>
               </Button>
             </p>
           </div>

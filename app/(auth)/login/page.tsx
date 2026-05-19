@@ -1,9 +1,8 @@
 "use client";
-import * as React from "react";
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Controller, useForm } from "react-hook-form";
-import { toast } from "sonner";
 import {
   Field,
   FieldError,
@@ -20,6 +19,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import Link from "next/link";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { WechatIcon } from "@hugeicons/core-free-icons";
+import { authClient } from "@/lib/auth-client";
 
 const formSchema = z.object({
   username: z.email("邮箱格式不正确").max(32, "标题最多32个字符"),
@@ -28,6 +28,7 @@ const formSchema = z.object({
 });
 
 export default function Page() {
+  const [loading, setLoading] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -37,21 +38,30 @@ export default function Page() {
     },
   });
 
-  function onSubmit(data: z.infer<typeof formSchema>) {
-    toast("You submitted the following values:", {
-      description: (
-        <pre className="mt-2 w-90 overflow-x-auto rounded-md bg-code p-4 text-code-foreground">
-          <code>{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-      position: "bottom-right",
-      classNames: {
-        content: "flex flex-col gap-2",
+  async function onSubmit(data: z.infer<typeof formSchema>) {
+    const { username, password, remember } = data;
+
+    const result = await authClient.signIn.email(
+      {
+        email: username,
+        password: password,
+        callbackURL: "/",
+        rememberMe: remember,
       },
-      style: {
-        "--border-radius": "calc(var(--radius)  + 4px)",
-      } as React.CSSProperties,
-    });
+      {
+        onRequest: () => setLoading(true),
+        onSuccess: () => {
+          setLoading(false);
+          window.location.href = "/";
+        },
+        onError: (ctx) => {
+          console.log(ctx.error);
+          setLoading(false);
+        },
+      },
+    );
+
+    console.log(result);
   }
 
   return (
@@ -118,7 +128,7 @@ export default function Page() {
                   <FieldGroup data-slot="checkbox-group">
                     <Field orientation="horizontal">
                       <Checkbox
-                        id="form-login-pwd"
+                        id="form-login-rmb"
                         name={field.name}
                         checked={field.value}
                         onCheckedChange={field.onChange}
@@ -143,7 +153,7 @@ export default function Page() {
       <div className="flex flex-col gap-4 w-full">
         <Separator />
         <Button type="submit" size="lg" form="form-login">
-          使用Email登录
+          {loading ? "正在登录......" : "使用Email登录"}
         </Button>
         <Button
           type="button"

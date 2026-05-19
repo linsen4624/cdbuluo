@@ -13,6 +13,7 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import { Button } from "@/components/ui/button";
+import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 
 const components: { title: string; href: string; description: string }[] = [
@@ -136,6 +137,8 @@ function ListItem({
 
 export default function NavBar() {
   const router = useRouter();
+  const { data: session, isPending } = authClient.useSession();
+
   return (
     <div className="w-full flex items-center justify-between h-16 px-16">
       <div className="relative size-16 flex">
@@ -153,12 +156,28 @@ export default function NavBar() {
       <div>
         <Navigation />
       </div>
-      <div className="text-xs">
-        <Link href="/login">登录</Link> {" | "}{" "}
-        <Button size="lg" asChild>
-          <Link href="/signup">注册</Link>
-        </Button>
-      </div>
+      {!session && (
+        <div className="text-xs">
+          <Link href="/login">登录</Link> {" | "}{" "}
+          <Button size="lg" asChild>
+            <Link href="/signup">注册</Link>
+          </Button>
+        </div>
+      )}
+      {session && (
+        <div className="text-xs">
+          <span className="text-xs">欢迎 {session.user.name}</span> {" | "}{" "}
+          <Button
+            size="lg"
+            onClick={async () => {
+              await authClient.signOut();
+              router.push("/");
+            }}
+          >
+            退出
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
