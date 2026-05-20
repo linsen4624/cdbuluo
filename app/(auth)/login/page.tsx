@@ -144,7 +144,7 @@ export default function Page() {
               )}
             />
             <span className="text-xs text-right font-medium">
-              <Link href="/">忘记密码</Link>
+              <Link href="/forgetpassword">忘记密码</Link>
             </span>
           </div>
         </FieldGroup>

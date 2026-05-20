@@ -10,8 +10,17 @@ export async function proxy(request: NextRequest) {
   const isLoggedIn = !!session;
   const { pathname } = request.nextUrl;
   // 2. 定义公开路由（无需认证）
-  const publicPaths = ["/login", "/signup", "/api/auth"]; // Better Auth 的 API 路由
-  const isPublicPath = publicPaths.some((path) => pathname.startsWith(path));
+  const exactPublicPaths = ["/"]; //这里需要精确匹配才会生效，而不是下面那种前缀匹配
+  const publicPaths = [
+    "/login",
+    "/signup",
+    "/api/auth",
+    "/forgetpassword",
+    "/resetpassword",
+  ]; // Better Auth 的 API 路由
+  const isPublicPath =
+    exactPublicPaths.includes(pathname) ||
+    publicPaths.some((path) => pathname.startsWith(path));
 
   // 3. 保护私有路由
   if (!isLoggedIn && !isPublicPath) {
@@ -30,5 +39,5 @@ export async function proxy(request: NextRequest) {
   return NextResponse.next();
 }
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|images).*)"],
 };
